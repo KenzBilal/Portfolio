@@ -21,5 +21,6 @@ To aggressively enhance the portfolio website (`index.html`) with maximum creati
 - Avoid standard, static, blocky layouts. Everything must feel fluid, connected, and alive.
 
 ## Current Status
-- Execution phase is complete. WebGL Background, SVG Drawing Loader, 3D text parallax, magnetic interactive buttons, and horizontal scroll skew effects have been integrated and deployed.
-- Verified local server running on port 8080 and live preview explicitly opened.
+- Execution phase 1 & 2 are complete. 
+- Implemented: WebGL Interactive Liquid Background, SVG Drawing Loader, 3D text parallax, magnetic interactive buttons, horizontal scroll skew effects, Lenis smooth scrolling, ASCII hover glithes, and Shrapnel text reveals.
+- Verified local server running on port 8080.
