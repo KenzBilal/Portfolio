@@ -21,7 +21,9 @@ To aggressively enhance the portfolio website (`index.html`) with maximum creati
 - Avoid standard, static, blocky layouts. Everything must feel fluid, connected, and alive.
 
 ## Current Status
-- Execution phase 1, 2, and 3 are complete. 
-- Implemented: WebGL Interactive Liquid Background, SVG Drawing Loader, 3D text parallax, magnetic interactive buttons, horizontal scroll skew effects, Lenis smooth scrolling, ASCII hover glithes, and Shrapnel text reveals.
-- Functional/Funny Features: Runaway contact button, slot machine stat spinners, gravity contact headline, skill tag emoji fountains, balloon ghost numbers, and functional status cycler.
+- Execution phase 1, 2, 3, and 4 are complete. 
+- Implemented: CSS Mesh Gradients (replaced WebGL for performance), SVG Drawing Loader, 3D text parallax, magnetic interactive buttons, horizontal scroll skew effects, Lenis smooth scrolling, ASCII hover glithes, and Shrapnel text reveals.
+- Functional Features: Gravity contact headline and functional status cycler.
+- Extreme Fluidity Features: Light/Dark Mode Toggle, Gravity Sandbox Mini-Game, Project "Deep Dive" interactive expanding dropdowns. 
+- Refinement (Phase 5): Removed overly chaotic interactions (runaway button, emoji fountains, slots, easter egg) to achieve a world-class premium aesthetic, and fixed Light Mode contrast issues across all sections.
 - Verified local server running on port 8080. Repository mapped to GitHub.
