@@ -92,12 +92,8 @@ nav.scrolled{background:rgba(8,8,8,.94);backdrop-filter:blur(14px);-webkit-backd
 .theme-btn{background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:8px 16px;border-radius:100px;color:var(--text);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(10px);transition:border .3s,background .3s;}
 .theme-btn:hover{border-color:var(--text2);background:rgba(255,255,255,0.08);}
 .theme-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);transition:background .3s;}
-.theme-dropdown{position:absolute;top:calc(100% + 12px);right:0;background:rgba(12,12,12,0.8);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:4px;opacity:0;pointer-events:none;transform:translateY(-10px);transition:opacity .3s,transform .3s;min-width:140px;z-index:1005;}
-.theme-dropdown.open{opacity:1;pointer-events:auto;transform:translateY(0);}
-.theme-option{background:transparent;border:none;padding:10px 14px;color:var(--text2);font-family:var(--font-mono);font-size:10px;text-align:left;letter-spacing:.1em;text-transform:uppercase;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .2s,color .2s;}
-.theme-option:hover{background:rgba(255,255,255,0.05);color:var(--text);}
-.theme-option span{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.opt-volcano span{background:#FF4D00;}
+body.light-mode .theme-btn{background:rgba(0,0,0,0.03);}
+body.light-mode .theme-btn:hover{border-color:var(--text2);background:rgba(0,0,0,0.08);}
 .opt-matrix span{background:#00FF41;}
 .opt-cyber span{background:#00F0FF;}
 .opt-amethyst span{background:#9D00FF;}
@@ -630,13 +626,7 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
   </ul>
   
   <div class="theme-switcher-wrap">
-    <button class="theme-btn" id="themeBtn"><div class="theme-dot"></div><span id="themeLabel">Volcano</span></button>
-    <div class="theme-dropdown" id="themeDropdown">
-      <button class="theme-option opt-volcano" data-theme="volcano"><span></span>Volcano</button>
-      <button class="theme-option opt-matrix" data-theme="matrix"><span></span>Matrix</button>
-      <button class="theme-option opt-cyber" data-theme="cyber"><span></span>Cyber</button>
-      <button class="theme-option opt-amethyst" data-theme="amethyst"><span></span>Amethyst</button>
-    </div>
+    <button class="theme-btn" id="themeBtn"><div class="theme-dot"></div><span id="themeLabel">Dark Mode</span></button>
   </div>
 
   <div class="hamburger" id="hamburger" onclick="toggleMenu()">
@@ -966,7 +956,7 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
 </div><!-- /projects -->
 
 <!-- PROCESS -->
-<svg class="svg-separator" preserveAspectRatio="none" viewBox="0 0 100 100" style="background:var(--bg)"><path d="M0,0 C20,120 80,-20 100,0 L100,100 L0,100 Z" fill="#0A0A0A"></path></svg>
+<svg class="svg-separator" preserveAspectRatio="none" viewBox="0 0 100 100" style="background:var(--bg)"><path d="M0,0 C20,120 80,-20 100,0 L100,100 L0,100 Z" fill="var(--bg2)"></path></svg>
 <section id="process">
   <span class="section-label reveal">Approach</span>
   <h2 class="section-title reveal">HOW I WORK</h2>
@@ -1680,43 +1670,53 @@ if(ps)po.observe(ps);
   }
 })();
 
-/* CSS THEME SWITCHER */
-const themeColors = {
-  volcano: { hex: '#FF4D00', m1: '#FF4D00', m2: '#8B0000', label: 'Volcano' },
-  matrix: { hex: '#00FF41', m1: '#00FF41', m2: '#003B00', label: 'Matrix' },
-  cyber: { hex: '#00F0FF', m1: '#00F0FF', m2: '#00008B', label: 'Cyber' },
-  amethyst: { hex: '#9D00FF', m1: '#9D00FF', m2: '#4B0082', label: 'Amethyst' }
-};
-
+/* CSS THEME SWITCHER (Dark/Light Mode) */
+let isLightMode = false;
 const themeBtn = document.getElementById('themeBtn');
-const themeDropdown = document.getElementById('themeDropdown');
 const themeLabel = document.getElementById('themeLabel');
 const root = document.documentElement;
 
-if (themeBtn && themeDropdown) {
+if (themeBtn) {
   themeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    themeDropdown.classList.toggle('open');
-  });
-
-  document.addEventListener('click', () => themeDropdown.classList.remove('open'));
-
-  document.querySelectorAll('.theme-option').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const t = this.dataset.theme;
-      const theme = themeColors[t];
-      
-      // Update CSS Variables natively mapped
-      root.style.setProperty('--accent', theme.hex);
-      root.style.setProperty('--mesh-color-1', theme.m1);
-      root.style.setProperty('--mesh-color-2', theme.m2);
-      themeLabel.textContent = theme.label;
-      themeDropdown.classList.remove('open');
-      
-      // Fun scale bounce on apply
-      gsap.fromTo(document.body, {scale: 0.99}, {scale: 1, duration: 0.4, ease: 'elastic.out(1,0.5)'});
-    });
+    isLightMode = !isLightMode;
+    
+    if (isLightMode) {
+      document.body.classList.add('light-mode');
+      root.style.setProperty('--bg', '#FAFAFA');
+      root.style.setProperty('--bg2', '#F0F0F0');
+      root.style.setProperty('--bg3', '#E5E5E5');
+      root.style.setProperty('--text', '#111111');
+      root.style.setProperty('--text2', '#555555');
+      root.style.setProperty('--text3', '#888888');
+      root.style.setProperty('--border', '#DDDDDD');
+      root.style.setProperty('--border2', '#CCCCCC');
+      root.style.setProperty('--accent', '#0077FF');
+      root.style.setProperty('--mesh-color-1', '#0077FF');
+      root.style.setProperty('--mesh-color-2', '#00D4FF');
+      themeLabel.textContent = 'Light Mode';
+      const glass = document.querySelector('.glass-overlay');
+      if(glass) glass.style.background = 'rgba(250,250,250,0.6)';
+    } else {
+      document.body.classList.remove('light-mode');
+      root.style.setProperty('--bg', '#080808');
+      root.style.setProperty('--bg2', '#0D0D0D');
+      root.style.setProperty('--bg3', '#111111');
+      root.style.setProperty('--text', '#F5F0E8');
+      root.style.setProperty('--text2', '#888888');
+      root.style.setProperty('--text3', '#444444');
+      root.style.setProperty('--border', '#222222');
+      root.style.setProperty('--border2', '#1A1A1A');
+      root.style.setProperty('--accent', '#FF4D00');
+      root.style.setProperty('--mesh-color-1', '#FF4D00');
+      root.style.setProperty('--mesh-color-2', '#8B0000');
+      themeLabel.textContent = 'Dark Mode';
+      const glass = document.querySelector('.glass-overlay');
+      if(glass) glass.style.background = 'rgba(8,8,8,0.7)';
+    }
+    
+    // Fun scale bounce on apply
+    gsap.fromTo(document.body, {scale: 0.99}, {scale: 1, duration: 0.4, ease: 'elastic.out(1,0.5)'});
   });
 }
 
