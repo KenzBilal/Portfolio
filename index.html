@@ -19,13 +19,14 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Removed heavy three.js -->
 <style>
 :root{
   --bg:#080808;--bg2:#0D0D0D;--bg3:#111111;--bg4:#1A1A1A;
   --text:#F5F0E8;--text2:#888888;--text3:#444444;
   --accent:#FF4D00;--accent2:#FF6B35;--accent-glow:rgba(255,77,0,0.14);
   --border:#222222;--border2:#1A1A1A;--green:#00FF87;
+  --mesh-color-1:#FF4D00; --mesh-color-2:#8B0000; --mesh-color-3:#111111;
   --font-display:'Bebas Neue',sans-serif;
   --font-mono:'Space Mono',monospace;
   --font-body:'DM Sans',sans-serif;
@@ -46,6 +47,15 @@ body.menu-open{overflow:hidden;}
 *:focus-visible{outline:none!important;box-shadow:none!important;}
 input,textarea{-webkit-user-select:text;user-select:text;}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");opacity:0.032;pointer-events:none;z-index:9999;}
+
+/* CSS MESH GRADIENT PERFORMANCE SYSTEM */
+#meshBackground{position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--bg);overflow:hidden;}
+.mesh-blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.6;will-change:transform;}
+.mesh-1{width:800px;height:800px;background:var(--mesh-color-1);top:-200px;left:-200px;animation:meshFloat1 25s ease-in-out infinite alternate;}
+.mesh-2{width:900px;height:900px;background:var(--mesh-color-2);bottom:-300px;right:-100px;animation:meshFloat2 32s ease-in-out infinite alternate-reverse;}
+@keyframes meshFloat1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30vw,20vh) scale(1.2)}}
+@keyframes meshFloat2{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-40vw,-10vh) scale(1.1)}}
+.glass-overlay{position:absolute;inset:0;background:rgba(8,8,8,0.7);backdrop-filter:blur(60px);-webkit-backdrop-filter:blur(60px);z-index:1;}
 
 /* SCROLL PROGRESS */
 #scroll-progress{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--accent);z-index:99999;transition:width .1s linear;box-shadow:0 0 8px var(--accent);}
@@ -78,6 +88,20 @@ nav.scrolled{background:rgba(8,8,8,.94);backdrop-filter:blur(14px);-webkit-backd
 .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0%;height:1px;background:var(--accent);transition:width .3s ease;}
 .nav-links a:hover,.nav-links a.active{color:var(--text);}
 .nav-links a:hover::after,.nav-links a.active::after{width:100%;}
+.theme-switcher-wrap{position:relative;display:flex;align-items:center;margin-left:20px;}
+.theme-btn{background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:8px 16px;border-radius:100px;color:var(--text);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(10px);transition:border .3s,background .3s;}
+.theme-btn:hover{border-color:var(--text2);background:rgba(255,255,255,0.08);}
+.theme-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);transition:background .3s;}
+.theme-dropdown{position:absolute;top:calc(100% + 12px);right:0;background:rgba(12,12,12,0.8);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:4px;opacity:0;pointer-events:none;transform:translateY(-10px);transition:opacity .3s,transform .3s;min-width:140px;z-index:1005;}
+.theme-dropdown.open{opacity:1;pointer-events:auto;transform:translateY(0);}
+.theme-option{background:transparent;border:none;padding:10px 14px;color:var(--text2);font-family:var(--font-mono);font-size:10px;text-align:left;letter-spacing:.1em;text-transform:uppercase;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .2s,color .2s;}
+.theme-option:hover{background:rgba(255,255,255,0.05);color:var(--text);}
+.theme-option span{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.opt-volcano span{background:#FF4D00;}
+.opt-matrix span{background:#00FF41;}
+.opt-cyber span{background:#00F0FF;}
+.opt-amethyst span{background:#9D00FF;}
+
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:none;z-index:1002;}
 .hamburger span{display:block;width:22px;height:1.5px;background:var(--text);transition:all .3s ease;transform-origin:center;}
 .hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);}
@@ -118,8 +142,11 @@ nav.scrolled{background:rgba(8,8,8,.94);backdrop-filter:blur(14px);-webkit-backd
 .hero-tagline{font-size:clamp(15px,1.4vw,19px);color:var(--text2);max-width:500px;line-height:1.72;margin-top:18px;opacity:0;animation:fadeUp .6s ease forwards;}
 .hero-tagline strong{color:var(--text);font-weight:500;}
 .hero-bottom{display:flex;align-items:center;gap:40px;margin-top:44px;opacity:0;animation:fadeUp .6s ease forwards;}
-.hero-cta a{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--text);text-decoration:none;border:1px solid var(--border2);padding:14px 28px;border-radius:2px;transition:border-color .3s,color .3s,background .3s,box-shadow .3s;display:inline-block;}
+.hero-cta{display:flex;align-items:center;gap:16px;}
+.hero-cta a,.play-btn{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--text);text-decoration:none;border:1px solid var(--border2);padding:14px 28px;border-radius:2px;transition:border-color .3s,color .3s,background .3s,box-shadow .3s;display:inline-block;}
 .hero-cta a:hover{border-color:var(--accent);color:var(--accent);background:rgba(255,77,0,.05);box-shadow:0 0 24px rgba(255,77,0,.15);}
+.play-btn{background:rgba(255,255,255,0.03);backdrop-filter:blur(8px);cursor:pointer;}
+.play-btn:hover{background:rgba(255,255,255,0.1);border-color:var(--text2);}
 .hero-stats{display:flex;gap:32px;}
 .hero-stat-num{font-family:var(--font-display);font-size:28px;color:var(--accent);line-height:1;display:block;}
 .hero-stat-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-top:3px;display:block;}
@@ -370,6 +397,20 @@ section{padding:120px 7vw;position:relative;}
 .slide-cta-secondary{color:var(--text3);}
 .slide-cta-secondary:hover{color:var(--text2);}
 
+/* DEEP DIVE EXPANDABLE INTERACTIVE */
+.slide-deep-dive-btn{margin-top:24px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:12px 18px;width:100%;text-align:left;font-family:var(--font-mono);font-size:11px;color:var(--text2);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .3s,border-color .3s;}
+.slide-deep-dive-btn:hover{background:rgba(255,255,255,0.03);border-color:var(--text3);}
+.slide-deep-dive-btn span{transition:transform .3s ease;}
+.slide-deep-dive-content{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1),opacity .4s ease,margin-top .4s;opacity:0;background:var(--bg2);border:1px solid transparent;border-top:none;border-radius:0 0 4px 4px;font-size:12px;color:var(--text3);line-height:1.6;}
+.slide-deep-dive-inner{padding:16px 18px;}
+.slide-deep-dive-inner strong{color:var(--text2);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:.1em;}
+.slide-deep-dive-inner ul{list-style:none;margin-bottom:12px;}
+.slide-deep-dive-inner li{position:relative;padding-left:14px;margin-bottom:4px;}
+.slide-deep-dive-inner li::before{content:'→';position:absolute;left:0;color:var(--accent);font-family:var(--font-code);}
+.slide-deep-dive.is-open .slide-deep-dive-btn span{transform:rotate(45deg);color:var(--accent);}
+.slide-deep-dive.is-open .slide-deep-dive-btn{border-color:var(--border);border-radius:4px 4px 0 0;background:var(--bg2);}
+.slide-deep-dive.is-open .slide-deep-dive-content{max-height:450px;opacity:1;border-color:var(--border);}
+
 /* Slide enter animation — activated via .slide-active class */
 .project-slide .slide-text{opacity:0;transform:translateX(30px);transition:opacity .55s ease,transform .55s ease;}
 .project-slide.slide-active .slide-text{opacity:1;transform:translateX(0);}
@@ -552,6 +593,12 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
 </head>
 <body>
 
+<div id="meshBackground">
+  <div class="mesh-blob mesh-1"></div>
+  <div class="mesh-blob mesh-2"></div>
+  <div class="glass-overlay"></div>
+</div>
+
 <div id="scroll-progress"></div>
 <div class="easter-egg-flash" id="easterEgg"></div>
 <div class="cursor-dot" id="cursorDot"></div>
@@ -581,6 +628,17 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
     <li><a href="#process" data-section="process">Process</a></li>
     <li><a href="#contact" data-section="contact">Contact</a></li>
   </ul>
+  
+  <div class="theme-switcher-wrap">
+    <button class="theme-btn" id="themeBtn"><div class="theme-dot"></div><span id="themeLabel">Volcano</span></button>
+    <div class="theme-dropdown" id="themeDropdown">
+      <button class="theme-option opt-volcano" data-theme="volcano"><span></span>Volcano</button>
+      <button class="theme-option opt-matrix" data-theme="matrix"><span></span>Matrix</button>
+      <button class="theme-option opt-cyber" data-theme="cyber"><span></span>Cyber</button>
+      <button class="theme-option opt-amethyst" data-theme="amethyst"><span></span>Amethyst</button>
+    </div>
+  </div>
+
   <div class="hamburger" id="hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
   </div>
@@ -588,7 +646,7 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
 
 <!-- HERO -->
 <section id="hero">
-  <div id="webgl-container" style="position: absolute; inset: 0; z-index: 0; pointer-events: none;"></div>
+  <!-- Removed webgl-container for fluidity -->
   <div class="hero-bg-letter" id="heroBgK">K</div>
   <div class="hero-content">
     <span class="hero-label">Portfolio · 2026</span>
@@ -596,7 +654,10 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
     <p class="hero-role" id="heroRole"><span id="roleText"></span><span class="cursor-blink">|</span></p>
     <p class="hero-tagline" id="heroTagline">I explore everything — then I build it.<br><strong>Built by one. Made for everyone.</strong></p>
     <div class="hero-bottom" id="heroBottom">
-      <div class="hero-cta"><a href="#projects">See My Work ↓</a></div>
+      <div class="hero-cta">
+        <a href="#projects">See My Work ↓</a>
+        <button class="play-btn" id="gravityBtn" title="Turn off Gravity">🕹️ Play</button>
+      </div>
       <div class="hero-stats">
         <div class="hero-stat"><span class="hero-stat-num">6</span><span class="hero-stat-label">Projects</span></div>
         <div class="hero-stat"><span class="hero-stat-num">1st</span><span class="hero-stat-label">Year CSE</span></div>
@@ -718,6 +779,19 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
               <p class="slide-desc">A masterless samurai wakes in the ashes of his destroyed clan — and must choose between the hero his father died believing in, or the monster his brother became. Feudal Japan, dying. Every choice pulls your soul in a different direction.</p>
               <div class="slide-tags"><span class="tag">Game Dev</span><span class="tag">Narrative Design</span><span class="tag">Feudal Japan</span><span class="tag">RPG</span></div>
               <div class="slide-ctas"><a href="#" class="slide-cta-primary">View Story →</a><a href="#" class="slide-cta-secondary">Dev Log ↗</a></div>
+              
+              <div class="slide-deep-dive">
+                <button class="slide-deep-dive-btn" onclick="toggleDeepDive(this)">Technical Architecture <span>+</span></button>
+                <div class="slide-deep-dive-content"><div class="slide-deep-dive-inner">
+                  <strong>Core Systems</strong>
+                  <ul>
+                    <li>Custom state machine for branched dialogue</li>
+                    <li>Timeline-based cinematic combat engine</li>
+                    <li>Dynamic weather reacting to morality choices</li>
+                  </ul>
+                  <p>Built using Godot 4 and entirely custom C++ modules for physics accuracy.</p>
+                </div></div>
+              </div>
             </div>
           </div>
 
@@ -737,6 +811,19 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
               <p class="slide-desc">A real money-earning platform built for Indian teenagers. Complete tasks, refer friends, earn wallet credits, withdraw to UPI. Three-role system: Admin, Promoter, User — with live campaigns, lead verification, and payout management.</p>
               <div class="slide-tags"><span class="tag">Next.js</span><span class="tag">Supabase</span><span class="tag">Vercel</span><span class="tag">UPI Payments</span></div>
               <div class="slide-ctas"><a href="https://cashttree.online" target="_blank" class="slide-cta-primary">Visit Platform →</a><a href="#" class="slide-cta-secondary">Case Study ↗</a></div>
+              
+              <div class="slide-deep-dive">
+                <button class="slide-deep-dive-btn" onclick="toggleDeepDive(this)">Infrastructure & Scale <span>+</span></button>
+                <div class="slide-deep-dive-content"><div class="slide-deep-dive-inner">
+                  <strong>Database Architecture</strong>
+                  <ul>
+                    <li>Row Level Security (RLS) policies for strict access</li>
+                    <li>Postgres Triggers for automated wallet ledgering</li>
+                    <li>Batched API payouts via Razorpay/PhonePe UPI integrations</li>
+                  </ul>
+                  <p>Handles bursts of 500+ concurrent users validating referrals.</p>
+                </div></div>
+              </div>
             </div>
           </div>
 
@@ -756,6 +843,19 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
               <p class="slide-desc">Send it any text, email, or image. Tell it what structure you want. Get back clean JSON — every time. FastAPI on Railway using Groq's Llama model and Instructor for schema enforcement. Per-project API keys, rate limiting, full admin dashboard.</p>
               <div class="slide-tags"><span class="tag">FastAPI</span><span class="tag">Groq / Llama</span><span class="tag">Instructor</span><span class="tag">Railway</span><span class="tag">React SaaS</span></div>
               <div class="slide-ctas"><a href="https://github.com/KenzBilal/AnyForge-Ai" target="_blank" class="slide-cta-primary">View on GitHub →</a><a href="https://github.com/KenzBilal/AnyForge-Ai" target="_blank" class="slide-cta-secondary">Live API ↗</a></div>
+              
+              <div class="slide-deep-dive">
+                <button class="slide-deep-dive-btn" onclick="toggleDeepDive(this)">LLM Validation Pipeline <span>+</span></button>
+                <div class="slide-deep-dive-content"><div class="slide-deep-dive-inner">
+                  <strong>Pydantic + Instructor</strong>
+                  <ul>
+                    <li>100% Guaranteed JSON out from Llama-70b-v3</li>
+                    <li>Automatic retry loops if LLM hallucinates keys</li>
+                    <li>Pydantic parsing ensuring strict typing</li>
+                  </ul>
+                  <p>Extracts unstructured emails to structured DB objects in ~800ms.</p>
+                </div></div>
+              </div>
             </div>
           </div>
 
@@ -774,6 +874,19 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
               <p class="slide-desc">Analyzes any crypto coin using 15+ indicators simultaneously — RSI, MACD, Bollinger Bands, Ichimoku Cloud, Supertrend, ADX, and more. Generates a confidence-scored BUY/SELL/HOLD signal, then calls Grok AI to cross-check against live market sentiment.</p>
               <div class="slide-tags"><span class="tag">Python</span><span class="tag">Telegram Bot API</span><span class="tag">Grok AI</span><span class="tag">15+ Indicators</span></div>
               <div class="slide-ctas"><a href="https://t.me/AtomicCrypto_bot" target="_blank" class="slide-cta-primary">Open on Telegram →</a><a href="#" class="slide-cta-secondary">How It Works ↗</a></div>
+              
+              <div class="slide-deep-dive">
+                <button class="slide-deep-dive-btn" onclick="toggleDeepDive(this)">Algorithmic Trading Logic <span>+</span></button>
+                <div class="slide-deep-dive-content"><div class="slide-deep-dive-inner">
+                  <strong>Data Aggregation</strong>
+                  <ul>
+                    <li>Pulls Binance WebSocket live data pipes</li>
+                    <li>Pandas/TA-Lib for asynchronous calculation of 15 metrics</li>
+                    <li>Sentiment injection via Twitter X API & Grok</li>
+                  </ul>
+                  <p>Returns deep dive charts and weighted final scores.</p>
+                </div></div>
+              </div>
             </div>
           </div>
 
@@ -792,6 +905,19 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
               <p class="slide-desc">Forward it an email or drop in a flyer — it reads the content, extracts the event details, and creates a structured event record automatically. No manual entry. FastAPI + Supabase with a React dashboard for managing attendees, RSVPs, and ticketing.</p>
               <div class="slide-tags"><span class="tag">FastAPI</span><span class="tag">React</span><span class="tag">Supabase</span><span class="tag">AnyForge-AI</span><span class="tag">Webhooks</span></div>
               <div class="slide-ctas"><a href="https://github.com/KenzBilal/EventForge" target="_blank" class="slide-cta-primary">View on GitHub →</a><a href="https://github.com/KenzBilal/EventForge" target="_blank" class="slide-cta-secondary">Architecture ↗</a></div>
+              
+              <div class="slide-deep-dive">
+                <button class="slide-deep-dive-btn" onclick="toggleDeepDive(this)">Automated Event Parsing <span>+</span></button>
+                <div class="slide-deep-dive-content"><div class="slide-deep-dive-inner">
+                  <strong>AnyForge Integration</strong>
+                  <ul>
+                    <li>Uses AnyForge API as an internal tool</li>
+                    <li>OCR extracts text from image drops instantly</li>
+                    <li>Auto-generates Google Calendar links and DB schemas</li>
+                  </ul>
+                  <p>A true demonstration of micro-SaaS architecture powering internal apps.</p>
+                </div></div>
+              </div>
             </div>
           </div>
 
@@ -810,6 +936,19 @@ footer{background:#060606;padding:34px 7vw;border-top:1px solid var(--border2);d
               <p class="slide-desc">Built for a 165+ student Iftar dinner at LPU. Public payment checker, promoter panel for 13 team leaders, and a live attendance tracker on event day. Solved a real ISP block on Supabase by routing all DB calls through Vercel serverless functions as a proxy.</p>
               <div class="slide-tags"><span class="tag">Next.js</span><span class="tag">Supabase</span><span class="tag">Vercel</span><span class="tag">Serverless Proxy</span><span class="tag">165+ Users</span></div>
               <div class="slide-ctas"><a href="https://github.com/KenzBilal/Ifthar" target="_blank" class="slide-cta-primary">View on GitHub →</a><a href="https://github.com/KenzBilal/Ifthar" target="_blank" class="slide-cta-secondary">Technical Write-up ↗</a></div>
+              
+              <div class="slide-deep-dive">
+                <button class="slide-deep-dive-btn" onclick="toggleDeepDive(this)">Bypassing ISP Blocks <span>+</span></button>
+                <div class="slide-deep-dive-content"><div class="slide-deep-dive-inner">
+                  <strong>The Real-World Issue</strong>
+                  <ul>
+                    <li>LPU WiFi blocked Supabase's `*.supabase.co` domains</li>
+                    <li>Rewrote entire database layer overnight before launch</li>
+                    <li>Used Next.js Edge API routes on Vercel as a proxy middle-man</li>
+                  </ul>
+                  <p>Platform executed flawlessly verifying 165 students at the exact time.</p>
+                </div></div>
+              </div>
             </div>
           </div>
 
@@ -1347,6 +1486,14 @@ document.querySelectorAll('.stat-number[data-target]').forEach(el => {
   });
 });
 
+/* DEEP DIVE TOGGLE SCRIPT */
+window.toggleDeepDive = function(btn) {
+  const parent = btn.closest('.slide-deep-dive');
+  parent.classList.toggle('is-open');
+  // Trigger GSAP ScrollTrigger refresh because layout height changed
+  setTimeout(() => ScrollTrigger.refresh(), 500);
+};
+
 /* PROCESS LINE */
 const po=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
@@ -1533,151 +1680,117 @@ if(ps)po.observe(ps);
   }
 })();
 
-/* HERO WEBGL LIQUID BACKGROUND */
-function initWebGL() {
-  const container = document.getElementById('webgl-container');
-  if (!container || typeof THREE === 'undefined') return;
+/* CSS THEME SWITCHER */
+const themeColors = {
+  volcano: { hex: '#FF4D00', m1: '#FF4D00', m2: '#8B0000', label: 'Volcano' },
+  matrix: { hex: '#00FF41', m1: '#00FF41', m2: '#003B00', label: 'Matrix' },
+  cyber: { hex: '#00F0FF', m1: '#00F0FF', m2: '#00008B', label: 'Cyber' },
+  amethyst: { hex: '#9D00FF', m1: '#9D00FF', m2: '#4B0082', label: 'Amethyst' }
+};
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  container.appendChild(renderer.domElement);
+const themeBtn = document.getElementById('themeBtn');
+const themeDropdown = document.getElementById('themeDropdown');
+const themeLabel = document.getElementById('themeLabel');
+const root = document.documentElement;
 
-  // Resolution and mouse uniforms
-  const uniforms = {
-    u_time: { value: 0.0 },
-    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-    u_mouse: { value: new THREE.Vector2(0.5, 0.5) },
-    u_color: { value: new THREE.Color(0xff4d00) }
-  };
-
-  const vertexShader = `
-    void main() {
-      gl_Position = vec4(position, 1.0);
-    }
-  `;
-
-  const fragmentShader = `
-    uniform float u_time;
-    uniform vec2 u_resolution;
-    uniform vec2 u_mouse;
-    uniform vec3 u_color;
-
-    // Simplex noise function
-    vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-    float snoise(vec2 v){
-      const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-      vec2 i  = floor(v + dot(v, C.yy) );
-      vec2 x0 = v -   i + dot(i, C.xx);
-      vec2 i1; i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-      vec4 x12 = x0.xyxy + C.xxzz;
-      x12.xy -= i1;
-      i = mod(i, 289.0);
-      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
-      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-      m = m*m; m = m*m;
-      vec3 x = 2.0 * fract(p * C.www) - 1.0;
-      vec3 h = abs(x) - 0.5;
-      vec3 ox = floor(x + 0.5);
-      vec3 a0 = x - ox;
-      m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-      vec3 g;
-      g.x  = a0.x  * x0.x  + h.x  * x0.y;
-      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-      return 130.0 * dot(m, g);
-    }
-
-    void main() {
-      vec2 st = gl_FragCoord.xy / u_resolution.xy;
-      st.x *= u_resolution.x / u_resolution.y;
-      
-      vec2 mouse = u_mouse;
-      mouse.x *= u_resolution.x / u_resolution.y;
-
-      // Distance to mouse
-      float dist = distance(st, mouse);
-
-      // Distort UVs using noise and time
-      vec2 distortedUV = st + vec2(
-        snoise(st * 2.0 + u_time * 0.2),
-        snoise(st * 2.0 - u_time * 0.2)
-      ) * 0.1;
-
-      // Create liquid ripple effect near mouse
-      float ripple = sin(dist * 30.0 - u_time * 5.0) * exp(-dist * 10.0);
-      float noiseVal = snoise(distortedUV * 3.0 + ripple * 0.5);
-
-      // Calculate final color intensity
-      // Create a dark ambient base, highlight with orange streaks
-      float intensity = smoothstep(0.2, 0.8, noiseVal * 0.5 + 0.5);
-      
-      // Add a slight glow ring near mouse position
-      float glow = exp(-dist * 3.0) * 0.15;
-      
-      vec3 finalColor = u_color * (intensity * 0.1 + glow);
-
-      gl_FragColor = vec4(finalColor, 1.0);
-    }
-  `;
-
-  const material = new THREE.ShaderMaterial({
-    vertexShader,
-    fragmentShader,
-    uniforms,
-    transparent: true,
-    blending: THREE.AdditiveBlending
+if (themeBtn && themeDropdown) {
+  themeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    themeDropdown.classList.toggle('open');
   });
 
-  const geometry = new THREE.PlaneGeometry(2, 2);
-  const mesh = new THREE.Mesh(geometry, material);
-  scene.add(mesh);
-  
-  camera.position.z = 1;
+  document.addEventListener('click', () => themeDropdown.classList.remove('open'));
 
-  let currentMouse = new THREE.Vector2(0.5, 0.5);
-  let targetMouse = new THREE.Vector2(0.5, 0.5);
-
-  document.addEventListener('mousemove', (e) => {
-    targetMouse.x = e.clientX / window.innerWidth;
-    targetMouse.y = 1.0 - (e.clientY / window.innerHeight);
-
-    // 3D Text Parallax
-    const mx = targetMouse.x - 0.5;
-    const my = 0.5 - targetMouse.y;
-    const name = document.getElementById('heroName');
-    if (name) {
-      gsap.to(name, {
-        rotationY: mx * 20,
-        rotationX: -my * 20,
-        textShadow: `${-mx*25}px ${-my*25}px 35px rgba(255,77,0,0.5)`,
-        duration: 0.8,
-        ease: "power2.out"
-      });
-    }
-  });
-
-  const clock = new THREE.Clock();
-  function animate() {
-    requestAnimationFrame(animate);
-    const delta = clock.getDelta();
-    uniforms.u_time.value += delta;
-
-    // Smooth mouse interpolation
-    currentMouse.lerp(targetMouse, 0.1);
-    uniforms.u_mouse.value.copy(currentMouse);
-
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
+  document.querySelectorAll('.theme-option').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const t = this.dataset.theme;
+      const theme = themeColors[t];
+      
+      // Update CSS Variables natively mapped
+      root.style.setProperty('--accent', theme.hex);
+      root.style.setProperty('--mesh-color-1', theme.m1);
+      root.style.setProperty('--mesh-color-2', theme.m2);
+      themeLabel.textContent = theme.label;
+      themeDropdown.classList.remove('open');
+      
+      // Fun scale bounce on apply
+      gsap.fromTo(document.body, {scale: 0.99}, {scale: 1, duration: 0.4, ease: 'elastic.out(1,0.5)'});
+    });
   });
 }
-window.addEventListener('load', initWebGL);
+
+/* PHYSICS SANDBOX (GRAVITY MINIGAME) */
+const gravityBtn = document.getElementById('gravityBtn');
+let isGravityOn = false;
+let physicsElements = [];
+
+if (gravityBtn) {
+  gravityBtn.addEventListener('click', () => {
+    if (isGravityOn) return; // one way trip for now
+    isGravityOn = true;
+    gravityBtn.textContent = 'Physics Active 💥';
+    gravityBtn.style.color = 'var(--accent)';
+    gravityBtn.style.borderColor = 'var(--accent)';
+    
+    // Grab all words from hero
+    const heroNameWords = document.querySelectorAll('#heroName .char, #roleText, .hero-tagline');
+    
+    heroNameWords.forEach(el => {
+      // Must detach from normal flow
+      const rect = el.getBoundingClientRect();
+      // Keep structural integrity but convert to absolute
+      gsap.set(el, {
+        position: 'fixed',
+        top: rect.top,
+        left: rect.left,
+        margin: 0,
+        zIndex: 9999,
+        willChange: 'transform'
+      });
+      document.body.appendChild(el); // yank to body
+      
+      // Basic bounce physics simulation using GSAP
+      const groundY = window.innerHeight - rect.height - 20;
+      
+      // Initial drop
+      gsap.to(el, {
+        y: groundY - rect.top,
+        rotation: Math.random() * 60 - 30, // Random tumble
+        duration: 1.5 + Math.random(),
+        ease: "bounce.out",
+        overwrite: "auto"
+      });
+      
+      // Make them draggable
+      el.style.cursor = 'grab';
+      let isDragging = false, startX, startY;
+      el.addEventListener('mousedown', e => {
+        isDragging = true;
+        el.style.cursor = 'grabbing';
+        gsap.killTweensOf(el); // Stop bouncing
+        startX = e.clientX - gsap.getProperty(el, "x");
+        startY = e.clientY - gsap.getProperty(el, "y");
+      });
+      document.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        gsap.set(el, { x: e.clientX - startX, y: e.clientY - startY });
+      });
+      document.addEventListener('mouseup', e => {
+        if (!isDragging) return;
+        isDragging = false;
+        el.style.cursor = 'grab';
+        // Drop it back down relative to current fixed pos
+        gsap.to(el, {
+          y: groundY - rect.top,
+          rotation: Math.random() * 90 - 45,
+          duration: 1,
+          ease: "bounce.out"
+        });
+      });
+    });
+  });
+}
 
 /* FORM RUNAWAY BUTTON */
 document.getElementById('formSubmit')?.addEventListener('mouseover', function(e) {
