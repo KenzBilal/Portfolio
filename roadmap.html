@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap — Kenz Bilal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --sage: #8FA28A;
+    --sage-deep: #6B8066;
+    --sage-light: #C7D3C0;
+    --cream: #F7F4ED;
+    --white: #FDFCFA;
+    --dark: #2D321E;
+    --text: #3D422E;
+    --text-light: #6B7056;
+    --gold: #C8A96B;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    background: rgba(247, 244, 237, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(143, 162, 138, 0.15);
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--dark);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--sage-deep); }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-light);
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gold);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--dark); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a.active { color: var(--dark); font-weight: 600; }
+  .nav-links a.active::after { width: 100%; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 120px 40px 80px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+    text-decoration: none;
+    margin-bottom: 32px;
+    transition: color 0.3s;
+  }
+  .back-link:hover { color: var(--sage-deep); }
+  .back-link svg { width: 16px; height: 16px; }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    color: var(--dark);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    font-size: 16px;
+    color: var(--text-light);
+    margin-bottom: 40px;
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  .image-wrapper {
+    background: var(--white);
+    border-radius: 24px;
+    border: 1px solid rgba(143, 162, 138, 0.12);
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(45, 50, 30, 0.08);
+  }
+  .image-wrapper img {
+    width: 100%;
+    display: block;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .container { padding: 100px 20px 60px; }
+    h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">kenz<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#skills">Skills</a></li>
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="index.html#education">Education</a></li>
+      <li><a href="roadmap.html" class="active">Roadmap</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container">
+  <a href="index.html" class="back-link">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Back to Portfolio
+  </a>
+
+  <h1>My Roadmap</h1>
+  <p class="subtitle">A visual overview of my journey — from education and skills to projects, achievements, and future goals.</p>
+
+  <div class="image-wrapper">
+    <img src="roadmap.png" alt="Kenz Bilal — Roadmap infographic showing education, skills, projects, achievements, and goals">
+  </div>
+</div>
+
+</body>
+</html>
